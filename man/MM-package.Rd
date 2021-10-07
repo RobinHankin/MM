@@ -32,7 +32,7 @@ P. M. E. Altham 1978.  \dQuote{Two Generalizations of the Binomial
 P. M. E. Altham and Robin K. S. Hankin 2012. \dQuote{Multivariate
 Generalizations of the Multiplicative Binomial Distribution: Introducing
 the MM Package}, \emph{Journal of Statistical Software}, 46(12),
-1-23. \url{http://www.jstatsoft.org/v46/i12/}
+1-23. \doi{10.18637/jss.v046.i12}
 }
 \examples{
 data(voting)
