@@ -1,0 +1,1151 @@
+\documentclass[nojss]{jss} 
+
+\usepackage{dsfont}
+\usepackage{bbm}
+\usepackage{bm}
+\usepackage{amssymb}
+\usepackage{amsmath}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%% declarations for jss.cls %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+
+%% just as usual
+\author{P. M. E. Altham\\University of Cambridge\And
+	   Robin K. S. Hankin\\Auckland University of Technology}
+\title{Multivariate Generalizations of the Multiplicative Binomial
+  Distribution: Introducing the \pkg{MM} Package}
+%\VignetteIndexEntry{The Multiplicative Multinomial distribution}
+
+%% for pretty printing and a nice hypersummary also set:
+\Plainauthor{P. M. E. Altham and Robin K. S. Hankin}
+\Plaintitle{Multivariate Generalizations of the Multiplicative Binomial
+  Distribution: Introducing the MM Package}
+\Shorttitle{The MM distribution}
+
+%% an abstract and keywords
+\Abstract{
+  
+We present two natural generalizations of the multinomial and
+multivariate binomial distributions, which arise from the 
+multiplicative binomial distribution of~\citet{altham1978}.
+The resulting two distributions are discussed and we introduce an
+\proglang{R} package, \pkg{MM}, which includes associated
+functionality.
+
+This vignette is based on~\cite{altham2012}.
+}
+\Keywords{Generalized Linear Models, Multiplicative Binomial,
+  Overdispersion, Overdispersed Binomial, 
+  Categorical Exponential Family, Multiplicative Multinomial Distribution, \proglang{R}}
+\Plainkeywords{Generalized Linear Models, Multiplicative Binomial,
+  Overdispersion, Overdispersed Binomial, 
+  Categorical Exponential Family, Multiplicative Multinomial
+  Distribution, R}
+
+
+%% publication information
+%% NOTE: This needs to filled out ONLY IF THE PAPER WAS ACCEPTED.
+%% If it was not (yet) accepted, leave them commented.
+%% \Volume{13}
+%% \Issue{9}
+%% \Month{September}
+%% \Year{2004}
+%% \Submitdate{2004-09-29}
+%% \Acceptdate{2004-09-29}
+
+%% The address of (at least) one author should be given
+%% in the following format:
+\Address{
+  P. M. E. Altham\\
+  Statistical Laboratory\\
+  Centre for Mathematical Sciences\\
+  Wilberforce Road
+  Cambridge CB3 0WB\\
+  United Kingdom\\
+  E-mail: \email{P.M.E.Altham@statslab.cam.ac.uk}
+
+  Robin K. S. Hankin\\
+  Auckland University of Technology\\
+  14 Wakefield Street\\
+  Auckland 1010\\
+  New Zealand\\
+  E-mail: \email{hankin.robin@gmail.com}
+}
+%% It is also possible to add a telephone and fax number
+%% before the e-mail in the following format:
+%% Telephone: +43/1/31336-5053
+%% Fax: +43/1/31336-734
+
+%% for those who use Sweave please include the following line (with % symbols):
+%% need no \usepackage{Sweave.sty}
+
+%% end of declarations %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+
+\SweaveOpts{echo=FALSE}
+\begin{document}
+
+\newcommand{\boldp}{\mathbf{p}}
+\newcommand{\boldy}{\mathbf{y}}
+\newcommand{\boldtheta}{{\mathbf\theta}}
+\newcommand{\bn}{\mathbf{n}}
+
+\section{Introduction}
+
+<<intro,echo=FALSE,print=FALSE>>=
+options("show.signif.stars" = FALSE)
+options(prompt = "R> ", continue = "+  ", width = 70, useFancyQuotes = FALSE)
+@ 
+
+The uses of the binomial and multinomial distributions in statistical
+modelling are very well understood, with a huge variety of
+applications and appropriate software, but there are plenty of
+real-life examples where these simple models are inadequate.  In the
+current paper, we first remind the reader of the two-parameter
+exponential family generalization of the binomial distribution first
+introduced by~\citet{altham1978} to allow for over- or under-dispersion:
+
+\begin{equation}\label{altham.eqn9}
+  \Prob\left(Z=j\right) = \left.
+  {n \choose j}p^jq^{n-j}\theta^{j(n-j)}\right/
+  f(p,\theta,n)\qquad j=0,\ldots,n
+  \end{equation}
+where
+\begin{equation}\label{altham.eqn9half}
+  f(p,\theta,n)=\sum_{j=0}^n{n\choose j}
+  p^jq^{n-j}\theta^{j(n-j)}.
+\end{equation}
+
+Here, $0\leqslant p\leqslant 1$ is a probability, $p+q=1$,
+and~$\theta>0$ is the new parameter which controls the shape of the
+distribution; the standard binomial~$\mathsf{Bi}(n,p)$ is recovered if
+$\theta=1$.  \citeauthor{altham1978} points out that this distribution
+is more sharply peaked than the binomial if~$\theta>1$, and more
+diffuse if~$\theta<1$.  As far as we are aware, no other
+generalization has this type of flexibility; for example, the
+beta-binomial distribution~\citep{johnson2005} only allows for {\em
+  over-}dispersion relative to the corresponding binomial distribution.
+
+We then introduce two different generalizations, both of which are of
+exponential family form.  We call these:
+
+\begin{description}
+  \item[The multivariate multinomial distribution]\hfill\\
+    Take non-negative integers $y_1, \ldots, y_k \geqslant 0$ with $\sum y_i =
+    y$, a fixed integer.  Then suppose that the probability mass function
+    of~$Y_1, \ldots, Y_k$ is
+    
+\begin{equation}\label{mult_mult}
+  \Prob(y_1, \ldots, y_k) = C^{-1} {y \choose y_1\ldots y_k}
+  \prod_{i=1}^{k} p_i^{y_i}
+  \prod_{1\leqslant i<j\leqslant k} {\theta_{ij}}^ {y_iy_j}
+\end{equation}
+ 
+where the free parameters are~${\bm p}=\left(p_1, \ldots ,p_k\right)$
+and~${\bm\theta}=\theta_{ij}$, with~$p_i\geqslant 0$ for~$1\leqslant
+i\leqslant k$, $\sum p_i=1$, and $\theta_{ij} > 0$ for $1\leqslant
+i<j\leqslant k$ [these restrictions on $i,j$ understood henceforth].
+Here $C=C\left(y,{\bm p},{\bm\theta}\right)$ is a normalization
+constant.  Thus the standard multinomial is recovered
+if~$\theta_{ij}=1$, and in this case~$C=1$.
+
+\item[The multivariate multiplicative binomial distribution]\hfill\\   
+    For simplicity of notation, we restrict attention to the bivariate case.
+    The proposed frequency function~$\Prob\left(X_1 = x_1,
+    X_2=x_2\right) = f\left(x_1,x_2\right)$ is
+
+\begin{equation}\label{fishpat}
+f\left(x_1,x_2\right) =
+C^{-1} {m_1 \choose x_1\, z_1} p_1^{x_1}q_1^{z_1}\theta_1 ^{x_1z_1}\cdot
+{m_2 \choose x_2\, z_2}p_2^{x_2}q_2 ^{z_2}\theta_2^{x_2z_2}\cdot
+\phi^{x_1 x_2} 
+\end{equation}
+
+where~$p_i+q_i=1$ and~$x_i+z_i=m_i$, $i=1,2$; all parameters are
+strictly positive and~$C$ is again a normalization constant.
+Thus~$X_1, X_2$ are independent iff~$\phi= 1$.  Furthermore, if~$\phi=
+1$, then~$\theta_1=\theta_2=1$ corresponds to~$X_1, X_2$ independent
+Binomial: $X_i\sim\mathsf{Bi}\left(m_i, p_i\right)$.
+\end{description}
+
+We then introduce an \proglang{R}~\citep{rcore2011} package~\pkg{MM}
+which implements some functionality for these distributions.  Because
+of their simple exponential family forms, both these distributions may
+be fitted to appropriate count data by using the \code{glm()}
+\proglang{R} function with the Poisson distribution and log link
+function.  This follows from the ingenious result
+of~\citet{lindsey1992}, and has the very important consequence that
+the computationally expensive normalizing constants in
+Equations~\ref{mult_mult} and~\ref{fishpat} above need never be
+evaluated.
+
+%The properties of these two distributions are illustrated below, with
+%several datasets, all available in the new \proglang{R} package
+%\pkg{MM}.  The key function of \pkg{MM} is the function
+%\code{Lindsey()}, constructed to perform the fast maximulm likelihood
+%fitting of the new models, avoiding the evaluation of the
+%normalization constant~$C$. 
+%
+%In this paper, we consider the natural extension of the multiplicative
+%binomial to multinomial observations, and introduce an
+%\proglang{R}~\citep{rcore2009} package~\pkg{MM} which implements some
+%functionality for the multiplicative multinomial; the package also
+%deals with the multiplicative binomial as a special case and includes
+%sample binomial datasets.
+%
+
+Both these distributions are clearly exponential family-type
+distributions~\citep{cox1974}, and may be seen as discrete analogues
+of the multivariate normal distribution in the following two respects,
+which we illustrate only for the multiplicative multinomial distribution.
+
+Firstly, suppose we have observed frequencies~$n\left(y_1,\ldots,y_k\right)$
+with~$\sum y_i=y$, then the log likelihood of this dataset may be
+written as
+\begin{equation}\label{loglikelihoodform}
+  \sum n\left(y_1,\ldots,y_k\right)\log\Prob\left(y_1,\ldots,y_k\right).
+  \end{equation}
+where the summation is over~$y_1,\ldots,y_k\geqslant 0$ with~$\sum
+y_i=y$.  This gives rather simple expressions, essentially the sample
+mean and sample covariance matrix of the
+vector~$\left(y_1,\ldots,y_k\right)$, for the minimal sufficient
+statistics of this exponential family.  Hence, by standard theory for
+exponential families, at the maximum likelihood value of the
+parameters, the observed and fitted values of the minimal sufficient
+statistics will agree exactly.
+
+Secondly, as we show later, each of the distributions given in
+Equations~\ref{mult_mult} and~\ref{fishpat} is reproductive under
+conditioning on components.
+
+\subsection{A probabilistic derivation of the Multiplicative Multinomial}
+
+It is possible to consider the MM distribution from the perspective of
+contingency tables, which for simplicity we will carry out for~$k=3$,
+$y=4$: The general case is notationally challenging.
+
+Our preferred interpretation is drawn from the field of psephology:
+Consider a household of~4 indistinguishable voters, each of whom votes
+for exactly one of~3 political parties, say $\wp_1,\wp_2,\wp_3$.
+Let~$y_1, y_2, y_3$ be the total number of votes obtained from this
+household for $\wp_1, \wp_2, \wp_3$ respectively, and so $y_1+ y_2+
+y_3 = 4$.
+
+The~4 voters in the household may be considered as corresponding to
+the rows, columns, layers and the~$4^\mathrm{th}$ dimension of
+a~$3\times 3\times 3\times 3$ contingency table, with cell
+probabilities~$\Prob_{ijhl}$ for~$1\leqslant i,j,h,l\leqslant 3$,
+which we will assume have the following symmetric form
+
+\begin{equation}\label{symmetric_form}
+\Prob_{ijhl}=
+\frac{1}{C'}\cdot
+p_i p_j p_h p_l\cdot
+\theta_{ij}\theta_{ih}\theta_{il}\theta_{jh}\theta_{jl}\theta_{hl}
+\end{equation}
+
+where~$\theta_{rs}=\theta_{sr}$ for~$s,r\in\left\{i,j,h,l\right\}$
+[notation is analogous to that used in Equation~8
+  of~\cite{altham1978}, with $\theta$ written for $\phi$], and without
+loss of generality~$\theta_{rr}=1$.
+
+The parameters $\theta_{ij}$ may be interpreted in terms of
+\emph{conditional} cross-ratios.  Recalling
+that~$\Prob_{ijhl}=\Prob_{ijlh}=\ldots =\Prob_{lhji}$ we have, for example:
+\begin{equation}\label{examplecrossratioformula}
+\frac{\Prob_{12hl}\,\Prob_{21hl}}{\Prob_{11hl}\, \Prob_{22hl}}=
+\theta_{12}^2\qquad\mbox{for each~$h,l$.}
+\end{equation}
+
+By enumerating the possible voting results for a given family of
+size~4, we may find the resulting joint distribution of $\left(Y_1,
+Y_2, Y_3\right)$, where random variable~$Y_i$ is the household total
+of votes for party~$\wp_i$, $i=1,2,3$.  For example,
+$\Prob\left(Y_1=4, Y_2=0 , Y_3=0\right) = \frac{1}{C'}\cdot p_1^4$ is
+the probability that all~4 members of the household vote for~$\wp_1$.
+Similarly, $\Prob(Y_1=3, Y_2=1, Y_3=0) =\frac{1}{C'}\cdot
+4p_1^3p_2^1\theta_{12}^3$ is the probability that~3 members of the
+household vote for~$\wp_1$ and the remaining~1 member votes
+for~$\wp_2$.
+
+This clearly corresponds to the given Multiplicative Multinomial
+distribution, so~$C=C'$.  We return to this example with a synthetic
+dataset in Section~\ref{voting_dataset} below. 
+
+\subsection{Marginal and conditional distributions}
+
+There does not appear to be an elegant expression for the marginal
+distribution of~$(Y_1, \ldots, Y_r)$ where~$r<k$.  However, the
+multiplicative multinomial behaves `elegantly' under conditioning on a
+subset of the variables~$(Y_1, \ldots, Y_k)$.  For example,
+\begin{equation}\label{marginalMM}
+\Prob\left(\left.y_1, y_2 \right| y_3, \ldots, y_k\right) \propto
+\frac{ {\phi_1^{y_1}} {\phi_2^{y_2} \theta_{12}^{y_1 y_2}}} {y_1 ! y_2 !},\qquad
+y_1 + y_2 = y - \sum_{i=3}^ky_i
+\end{equation}
+
+where
+\begin{equation}\label{marginalMM_psi}
+  \phi_1 = p_1 \theta_{13}^{y_3} \ldots \theta_{1k}^{y_k}\qquad
+  \phi_2 = p_2 \theta_{23}^{y_3} \ldots \theta_{2k}^{y_k}.
+\end{equation}
+Hence the distribution of $Y_1$, conditional on the values of~$(y_3,
+\ldots, y_k)$ is multiplicative binomial in the sense
+of~\cite{altham1978}.  Similarly, the distribution of $(Y_1, \ldots,
+Y_\nu)$, conditional on the values of $(y_{\nu+1}, \ldots, y_k)$ is
+multiplicative multinomial in the sense defined above.
+
+%Although there does not appear to be a closed-form expression for~$C$,
+%it will still be the case that when we fit this distribution to a
+%random sample, we will in effect be arranging that the expected value
+%of~$(Y_1, \ldots, Y_k)$ agrees exactly with the corresponding sample
+%value, and similarly the covariance matrix of~$(Y_1, \ldots, Y_k)$
+%agrees exactly with the corresponding sample value.
+
+%\subsection{Parameter estimation}
+%
+%Fitting this distribution to frequencies~$(n(y_1, \ldots, y_k))$ ca
+%be done using the Poisson `trick' first given by~\cite{lindsey1992}
+%and illustrated in the context of the multiplicative binomial
+%by~\cite{altham1998}.  In a computational context, we note that using
+%this method does note require the evaluation of the normalizing
+%constant~$C$.
+%
+%Suppose we have observed frequencies $(n(y_1, \ldots, y_k))$
+%with~$\sum y_i = y$. Then the log-likelihood of this dataset may be
+%written as 
+%\begin{equation}
+%  \sum n(y_1, \ldots, y_k)\log\Prob\left(y_1, \ldots,y_k)\right)
+%\end{equation}
+%
+%where the summation is over~$y_1, \ldots, y_k\geqslant 0$ with~$\sum
+%y_i=y$.  This gives rather simple expressions (essentially the mean
+%and covariance matrix of the vector $(y_1, \ldots, y_k)$ ) for the
+%sufficient statistics for this exponential family.
+
+\subsection{The normalization constant}
+
+The constant~$C$ in Equation~\ref{mult_mult} must be determined by
+numerical means:
+
+\begin{equation}\label{normalization_formula}
+  C = \sum_{y_1+\ldots +y_k=y} 
+  {y \choose y_1\ldots y_k}
+  \prod_{i=1}^{k} p_i^{y_i}
+  \prod_{1\leqslant i<j\leqslant k} {\theta_{ij}}^ {y_iy_j}.
+\end{equation}
+
+Although this is provided in the \pkg{MM} package [function
+  \code{NormC()}], it is computationally expensive and difficult to
+evaluate for all but small~$k$ and~$y$.
+
+\subsection{The Poisson method for fitting distributions with an
+  intractable normalizing constant}
+
+The parameters~$\left(\boldp,\boldtheta\right)$ may be estimated
+without determining the normalizing constant~$C$ by transforming the
+problem into a Generalized Linear Model.  The method presented here
+follows~\cite{lindsey1992}; for simplicity of notation we take~$k=3$.
+Equation~\ref{mult_mult} is equivalent to
+
+\begin{equation}\label{lindseytrick}
+\log\Prob\left(y_1,y_2,y_3\right) = 
+\mu +
+\sum y_i\log p_i +
+\sum_{i<j}y_i\cdot y_j\log\theta_{ij} +
+\mbox{\pkg{offset}}\left[y_1,y_2,y_3\right]
+\end{equation}
+
+where~$\mbox{\pkg{offset}}\left[y_1,y_2,y_3\right]=-\sum\log\left(y_i!\right)$
+accounts for the multinomial term on the right hand side.  The
+log-likelihood~${\mathcal L}$ of the
+dataset~$n\left(y_1,y_2,y_3\right)$ is given by
+\begin{equation}\label{loglike}
+  \mathcal{L} =
+  \sum_{y_1+y_2+y_3=y}n\left(y_1,y_2,y_3\right)\log\Prob\left(y_1,y_2,y_3\right).
+  \end{equation}
+
+Thus, treating~$n\left(y_1,y_2,y_3\right)$ as independent Poisson
+variables with parameters\footnote{The distribution of independent
+  Poisson random variables conditional on their total is multinomial
+  with probabilities equal to the scaled Poisson parameters.
+  If~$X_i\sim\mathsf{Po}(\lambda_i)$, then elementary considerations show
+  \[
+  \Prob\left(X_1=x_1,\ldots,X_k=x_k\left|\sum_i x_i=N\right.\right)=
+  {N\choose x_1,\ldots,x_k}
+  \prod\left(\frac{\lambda_i}{\sum_i\lambda_i}\right)^{x_i},
+  \]
+the right hand side being recognisable as a multinomial distribution.
+Given that the distribution is of the exponential family, it is the
+case that~$\sum n=\sum\hat{\lambda}_i$, the normalizing constant is
+not needed.} given by Equation~\ref{lindseytrick}, we may fit the
+parameters of Equation~\ref{mult_mult} using
+\code{glm(..., family=poisson)}, using the canonical log link function,
+and regressing~$n\left(y_1,y_2,y_3\right)$ on the variables
+\[y_1,\qquad y_2,\qquad y_3,\qquad y_1y_2,\qquad y_1y_3,\qquad y_2y_3.\]
+
+With obvious notation, the \proglang{R} idiom is\label{ridiom}
+
+\begin{Schunk}
+\begin{Sinput}
+glm(n ~ -1+offset(Off) + y1    + y2    + y3 
+                       + y1:y2 + y1:y3 + y2:y3,
+                       family = poisson)
+\end{Sinput}
+\end{Schunk}
+
+(recall that~$y_1+y_2+y_3=y$, fixed), which is given by function
+\code{Lindsey()} in the package.
+
+
+\subsection{Multivariate multiplicative binomial}
+
+Considering the bivariate case for simplicity, suppose~$(X_1, X_2)$ to
+be non-negative integers not exceeding known fixed maxima~$m_1, m_2$
+respectively.
+
+We introduce a 5-parameter distribution of exponential family form.
+In common with the multiplicative binomial, it has the property that
+at the maximum likelihood values of these parameters, the observed and
+fitted values of the means of~$X_i$, $i=1,2$ will agree exactly, and
+similarly for the observed and fitted values of the covariance matrix
+of~$X_1, X_2$.  This distribution is easy to fit to frequency data
+(again using the \citeauthor{lindsey1992} Poisson device).  The
+distribution has some nice properties, but there do not appear to be
+simple formul\ae\ for its moments.
+
+The proposed frequency function~$\Prob\left(X_1 = x_1, X_2=x_2\right)
+= f\left(x_1,x_2\right)$ is
+
+\begin{equation}\label{fishpat_again}
+f\left(x_1,x_2\right) =
+C^{-1} {m_1 \choose x_1\, z_1} p_1^{x_1}q_1^{z_1}\theta_1 ^{x_1z_1}\cdot
+{m_2 \choose x_2\, z_2}p_2^{x_2}q_2 ^{z_2}\theta_2^{x_2z_2}\cdot
+\phi^{x_1 x_2} 
+\end{equation}
+
+where~$p_i+q_i=1$ and~$x_i+z_i=m_i$; all parameters are strictly
+positive.
+
+Here, $C$ is the normalization constant:
+\begin{equation}\label{mmb_normconst}
+  C=
+  \sum_{x_1+z_1=m_1}
+  \sum_{x_2+z_2=m_2}
+      {m_1 \choose x_1\, z_1} p_1^{x_1}q_1^{z_1}\theta_1 ^{x_1z_1}\cdot
+      {m_2 \choose x_2\, z_2} p_2^{x_2}q_2 ^{z_2}\theta_2^{x_2z_2}\cdot
+      \phi^{x_1 x_2} 
+\end{equation}
+
+Thus~$X_1, X_2$ are independent iff~$\phi= 1$.  As already noted,
+if~$\phi= 1$, then~$\theta_1=\theta_2=1$ corresponds to~$X_1, X_2$
+independent Binomial: $X_i\sim\mathsf{Bi}\left(m_i, p_i\right)$.
+
+Although there does not seem to be a simple expression for the
+correlation between~$X_1$ and~$X_2$, it is easily seen that~$\phi$
+controls their interdependence in a likelihood ratio fashion, with
+\begin{equation}\label{interdependence}
+\frac{
+  f(x_1, x_2)\,f(x_1+1 , x_2 + 1)
+}{
+  f(x_1+1,x_2)\,f(x_1, x_2+1)
+} = \phi.
+\end{equation}
+
+Indeed, following~\citet{lehmann1966} we can prove a much stronger
+statement: The variables~$X_1, X_2$ are positive monotone likelihood
+ratio dependent\footnote{Random variables~$X_1,X_2$ are positive
+  monotone likelihood ratio dependent
+  if~$f(x_1,x_2')f(x_1',x_2)\leqslant f(x_1,x_2)f(x_1',x_2')$ for
+  all~$x_1<x_1'$, $x_2<x_2'$, and negative monotone likelihood ratio
+  dependent if the inequality is reversed.}  for~$\phi>1$, negative
+if~$\phi<1$.
+
+The conditional distribution is again of multiplicative binomial
+form, since we can write
+\begin{equation}\label{cond_fish}
+\Prob\left(X_1=x_1 |X_2=x_2\right)\propto
+{m_1 \choose x_1\, z_1}
+\left(p_1 \phi^{x_2}\right)^{x_1} q_1 ^{z_1}
+\theta_1 ^{x_1z_1}.
+\end{equation}
+
+
+
+
+\section[The MM package]{The \pkg{MM} package}
+
+The \pkg{MM} package associated with this article provides
+\proglang{R} functionality for assessing the multiplicative
+multinomial and multivariate binomial.
+We have provided user-friendly wrappers to expedite use of the
+distributions in a data analysis setting.
+
+The \pkg{MM} package uses an object-oriented approach: The set of free
+parameters (one vector, one upper-diagonal matrix) is not a standard
+\proglang{R} object, and is defined to be an object of \proglang{S4}
+class \code{paras}.  The objects thus defined are user-transparent and
+a number of manipulation methods are provided in the package.
+
+For example, consider Equation~\ref{mult_mult} with~$k=5$
+and~$p_i=\frac{1}{5}$ , $1\leqslant i\leqslant 5$ and~$\theta_{ij}=2$
+for~$1\leqslant i<j\leqslant 5$.  This distribution would be
+underdispersed compared with the corresponding multinomial.  It is
+straightforward to create an object corresponding to the parameters
+for this distribution using the package:
+
+
+<<setstuff,echo=F>>=
+options('digits'=5)
+@ 
+
+<<startup,echo=TRUE>>=
+library("MM")
+pm1 <- paras(5,pnames=letters[1:5])
+theta(pm1) <- 2
+pm1
+@ 
+
+Now we may sample repeatedly from the distribution (sampling is quick
+because it does not require evaluation of the normalization constant).
+Consider~$y=20$:
+
+<<randomsample,echo=TRUE>>=
+set.seed(0)
+(sample1 <- rMM(n=10, Y=20, paras=pm1))
+@ 
+
+See how closely clustered the sample is around its mean
+of~$(4,4,4,4,4)$; compare the wider dispersion of the multinomial:
+
+<<sample.multinomial,echo=TRUE>>=
+pm2 <- pm1
+theta(pm2) <- 1 # revert to classical multinomial
+(sample2 <- rMM(n=10, Y=20, paras=pm2))
+@ 
+
+Thus \code{sample2} is drawn from the classical multinomial.  It is
+then straightforward to perform a likelihood ratio test on, say,
+\code{sample1}:
+
+<<lrtest,echo=TRUE,cache=TRUE>>=
+support1 <- MM_allsamesum(sample1, paras=pm1)
+support2 <- MM_allsamesum(sample1, paras=pm2)
+@ 
+
+<<printsupporttest,echo=TRUE,print=TRUE>>=
+support1-support2
+@ 
+
+Function \code{MM_allsamesum()} calculates the log likelihood for a
+specific parameter object (in this case, \code{pm1} and \code{pm2}
+respectively) and we see that, for \code{sample1}, hypothesis
+\code{pm1} is preferable to~\code{pm2} on the grounds of a likelihood
+ratio of
+about~$\Lambda=\Sexpr{round(exp(-support1+support2)*1e6,2)}\times
+10^{-6}$, corresponding to \Sexpr{round(support1-support2,2)} units of
+support.  This would exceed the two units of support criterion
+suggested by~\cite{edwards1992} and we could reject~\code{pm2}.
+Alternatively, we could observe that~$-2\log\Lambda$ is in the tail
+region of its asymptotic distribution, $\chi^2_1$.
+
+
+
+The package includes a comprehensive suite of functionality which is
+documented through the \proglang{R} help system and accessible by
+typing \code{library(help="MM")} at the command prompt.
+
+
+\section{The package in use}
+
+The package comes with a number of datasets, four of which are
+illustrated here.  We begin with a small synthetic dataset, then
+consider data taken from the social sciences, previously analyzed
+by~\cite{wilson1989}; analyze some pollen counts considered
+by~\cite{mosimann1962} in the context of palaeoclimatology; and
+finally assess a marketing science dataset.
+
+\subsection{Synthetic voting dataset}
+\label{voting_dataset}
+We begin with a small synthetic dataset which is simple enough to
+illustrate the salient aspects of the multiplicative multinomial
+distribution, and the \pkg{MM} package.
+
+This dataset arises from~96 households each of size~4, in which each
+member of the household is noted as voting~\code{Lib}, \code{Con} or
+\code{Lab} respectively.  We take~$n(\cdot,\cdot,\cdot)$ as the voting
+tally; thus~$n(0,0,4)=5$ [the first line] means that there are
+exactly~5 households in which all~4 members vote Labour;
+similarly~$n(0,1,3)=8$ means that there are exactly~8 households in
+which~1 member votes Conservative and the remaining~3 vote Labour.
+
+<<voting,echo=TRUE>>=
+data("voting")
+cbind(voting,voting_tally)
+@ 
+
+One natural hypothesis is that the data are drawn from a multinomial
+distribution (alternative hypotheses might recognize that individuals
+within a given household may be non-independent of each other in their
+voting).
+
+The multinomial hypothesis may be assessed using \code{glm()} 
+following~\cite{lindsey1992} but without the interaction terms:
+
+<<change_to_a_dataframe,echo=FALSE,print=FALSE>>=
+Off <- -rowSums(lfactorial(voting))
+jj <- glm(voting_tally~-1+(.)+offset(Off),data=as.data.frame(voting),family=poisson)
+@ 
+
+
+\begin{Schunk}
+\begin{Sinput}
+R> Off <- -rowSums(lfactorial(voting))
+R> summary(glm(voting_tally ~ -1 + (.) + offset(Off), 
+        data = as.data.frame(voting), family = poisson))
+\end{Sinput}
+\end{Schunk}
+
+
+<<lindsey_pol,echo=FALSE,print=FALSE>>=
+Off <- -rowSums(lfactorial(voting))
+summary(glm(voting_tally~-1+(.)+offset(Off),
+data=as.data.frame(voting),family=poisson))
+@ 
+
+
+
+  
+
+Thus the model fails to fit (\Sexpr{round(jj$deviance,3)} %$.........
+being much larger than the corresponding degrees of freedom, 12).
+This is because the observed frequencies of the cells in which all
+members of the household vote for the same party (namely for rows~1, 5
+and~15 of the data) greatly exceed the corresponding expected numbers
+under the simple multinomial model.
+
+The next step is to take account of the fact that individuals within a
+given household may be non-independent of each other in their voting
+intentions (and may indeed tend to disagree with each other rather
+than all vote the same way).  Positive dependence between individuals
+in a household could be modelled by the Dirichlet-multinomial
+distribution~\citep{mosimann1962}, but by using the Multiplicative
+Multinomial introduced here, we are allowing dependence between
+individuals in a household to be positive or negative.
+
+The MM parameters may be estimated, again following~\cite{lindsey1992}
+but this time admitting first-order interaction, using bespoke
+function~\code{Lindsey()}:
+<<use_lindsey_voting,echo=TRUE,print=TRUE>>=
+Lindsey(voting, voting_tally, give_fit = TRUE)
+@ 
+
+<<lindsey_fit,echo=FALSE,print=FALSE>>=
+jjvoting <- Lindsey(voting, voting_tally, give=TRUE)
+p.fit <- jjvoting$fit$coefficients[1:3]
+p.mle <- p(jjvoting$MLE)
+@ 
+
+Observe that the MLEs of~$p$ [viz~$(\Sexpr{round(p.mle[1],3)},
+  \Sexpr{round(p.mle[2],3)}, \Sexpr{round(p.mle[3],3)})$] are obtained
+as proportional to the exponential of the estimated regression
+coefficients: $(e^{\Sexpr{round(p.fit[1],3)}},
+e^{\Sexpr{round(p.fit[2],3)}}, e^{\Sexpr{round(p.fit[3],3)}})$,
+normalized to add to 1.
+     
+This model is quite a good fit in the sense that the null
+deviance~$\Sexpr{round(jjvoting$fit$deviance,1)}$ is not in the tail
+region of~$\chi^2_9$, its null distribution; it can be seen that all~3
+interaction parameters are significant and, for example,
+$\hat{\theta}_{23} =\Sexpr{round(theta(jjvoting$MLE)[2,3],3)}
+=\exp\left(\Sexpr{round(log(theta(jjvoting$MLE))[2,3],3)}\right)$.
+
+The corresponding conditional cross-ratios are all significantly
+greater than~$1$; for example
+
+\begin{equation}\label{conditionalcrossratios}
+\frac{\hat{\Prob}_{11hl}\hat{\Prob}_{22hl}}{\hat{\Prob}_{12hl}\hat{\Prob}_{21hl}} =
+\frac{1}{\hat{\theta}_{12}^2} =  \frac{1}{0.6735116^2} = 2.2045.
+\end{equation}
+
+\subsection{Housing satisfaction data}
+
+We now consider a small dataset taken from Table~1
+of~\citet{wilson1989}, who analyzed the datset in the context of
+overdispersion (\citeauthor{wilson1989} himself took the dataset from
+Table~1 of~\citet{brier1980}).
+
+In a non-metropolitan area, there were~18 independent neighbourhoods
+each of~5 households, and each household gave its response concerning
+its personal satisfaction with their home.  The allowable responses
+were `unsatisfied' (\code{US}), `satisfied' (\code{S}), and `very
+satisfied' (\code{VS}).  
+
+<<voting,echo=TRUE>>=
+data("wilson")
+head(non_met)
+@ 
+
+Thus the first neighbourhood had three households responding US, two
+reporting S, and zero reporting VS; the second neighbourhood had the
+same reporting pattern.
+
+Observe that the~5 households within a neighbourhood may not be
+independent in their responses.  The first step is to recast the
+dataset into a table format; the package provides a function
+\code{gunter()} [named for the \proglang{R}-lister who suggested the
+  elegant and fast computational method]:
+<<gunter_wilson,echo=TRUE>>=
+wilson <- gunter(non_met)
+wilson
+@ 
+
+Thus~1 neighbourhood reported \code{c(5,0,0)}, and~5 neighbourhoods
+reported~\code{c(4,1,0)} [because \code{d[1]=1} and
+  \code{tbl[1,]=c(5,0,0)}; and \code{d[2]=5} and
+  \code{tbl[2,]=c(4,1,0)} respectively].
+
+The hypothesis that the data are drawn from a multinomial distribution
+may again be assessed by using~\citeauthor{lindsey1992}'s technique:
+
+<<change_to_a_dataframe,echo=FALSE,print=FALSE>>=
+wilson$tbl <- as.data.frame(wilson$tbl)
+Off <- -rowSums(lfactorial(wilson$tbl))
+jj <- glm(wilson$d~-1+(.)+offset(Off),data=wilson$tbl,family=poisson)
+@ 
+
+
+<<lindsey_wilson,echo=TRUE,print=FALSE>>=
+attach(wilson)
+Off <- -rowSums(lfactorial(tbl))
+summary(glm(d~-1+(.)+offset(Off),data=tbl,family=poisson))
+@ 
+
+
+<<detachwilson,echo=F,print=F>>=
+detach(wilson) 
+@ 
+
+Thus the multinomial model is a reasonable fit, in the sense that the
+residual deviance of~\Sexpr{round(jj$deviance,3)} %$..................
+is consistent with the null distribution, $\chi^2_{18}$.  The slightly
+increased value would be because the observed frequencies for
+neighbourhoods in agreement (that is, either perfect
+agreement---\code{c(5,0,0)} or \code{c(0,5,0)} or \code{c(0,0,5)}---or
+near-perfect, as in \code{c(4,1,0)}) exceed the corresponding expected
+numbers under the simple multinomial model.  
+
+The MM parameters may be estimated, again following~\cite{lindsey1992}
+but this time admitting first-order interaction:
+
+<<use_lindsey_wilson,echo=TRUE,print=TRUE>>=
+Lindsey(wilson,give_fit=TRUE)
+@ 
+
+Thus in this dataset, only the first interaction parameter \code{US:S}
+is significant.  This might be interpreted as an absence of \code{VS}
+responses coupled with a broader than expected spread split between
+\code{US} and \code{S}.  Note that the residual deviance is now less
+than the corresponding degrees of freedom.  
+
+In this case, the three categories \code{US}, \code{S}, and \code{VS}
+are ordered, a feature which is not used in the present approach.  It
+is not clear at this stage how we could best include information about
+such ordering into our analysis.
+
+We now check agreement of the observed and expected sufficient
+statistics:
+
+<<showobservedsuffstats,echo=T,print=T>>=
+summary(suffstats(wilson))
+@ 
+
+The \code{summary()} method gives normalized statistics so that, for
+example, the \code{row_sums} total~$y=5$.  This may be compared with
+the expectation of the maximum likelihood MM distribution:
+
+<<showexpectedsuffstats,echo=T,print=F>>=
+L <- Lindsey(wilson)
+<<echo=T,print=T>>=
+expected_suffstats(L,5)
+@ 
+
+showing agreement to within numerical precision. 
+
+\subsection[Mosimann's forest pollen dataset]{\citeauthor{mosimann1962}'s forest pollen dataset}
+
+\label{mfpd}
+
+Palynology offers a unique perspective on palaeoclimate; pollen is
+durable, easily identified, and informative about
+climate~\citep{faegri1992}.  We now consider a dataset collected in
+the context of palaeoclimate~\citep{sears1955,clisby1955}, and further
+analyzed by~\cite{mosimann1962}.
+
+We consider a dataset taken from the Bellas Artes core from the Valley
+of Mexico~\cite[Table 2]{clisby1955}; details of the site are given
+by~\cite{foreman1955}.  The dataset comprises a matrix with~$N=73$
+observations, each representing a depth in the core, and~$k=4$
+columns, each representing a different type of pollen.  We
+follow~\citeauthor{mosimann1962} in assuming that the~$73$ observations are
+independent, and in restricting the analysis to depths at which a full
+complement of~100 grains were identified.
+
+<<pollen_shower,echo=TRUE>>=
+data("pollen")
+pollen <- as.data.frame(pollen)
+head(pollen)
+@ 
+
+Thus each row is constructed to sum to~$100$, and there are~$4$
+distinct types of pollen; hence in our notation~$y=100$
+and~$k=4$.
+
+Observe that this dataset, in common with the housing satisfaction
+data considered above, has to be coerced to histogram form; but this
+time the numbers are larger.  The \pkg{partitions}
+package~\citep{hankin2006} uses generating functions to determine that
+there are exactly
+
+<<usepartitions,echo=TRUE,print=TRUE>>=
+S(rep(100,4),100)
+@ 
+
+possible non-negative integer solutions to~$y_1+y_2+y_3+y_4=100$ (most
+of these have zero observed count).  Each of these solutions must be
+generated and this is achieved using the \code{compositions()}
+function of the \pkg{partitions} package~\citep{hankin2007}.
+ 
+
+<<setdigits,print=FALSE>>=
+options('digits'=3)
+@ 
+
+First we repeat some of~\citeauthor{mosimann1962}'s calculations as a
+check.  Using the ordinary multinomial
+distribution~$\mathsf{Mn}(y,p)$, we find~$\hat{p}$ to be
+
+<<find_p_hat,echo=TRUE,print=TRUE>>=
+p.hat <- colSums(pollen)/sum(pollen)
+@ 
+
+The observed sample variances for the counts are
+<<find_pollen_variances,echo=TRUE,print=TRUE>>=
+apply(pollen,2,var)
+@ 
+
+but if the ordinary multinomial model held, we would expect these
+variances to be 
+
+<<find_multinomial_variances,echo=TRUE,print=TRUE>>=
+100*p.hat*(1-p.hat)
+@
+
+respectively.  This shows that the dataset has pronounced
+over-dispersion compared to the ordinary multinomial. Furthermore, the
+sample correlation matrix is not what we would expect from the
+ordinary multinomial.
+
+As~\citeauthor{mosimann1962} points out, the sample correlation matrix
+is
+
+<<calculate_sample_correlation_matrix,echo=TRUE>>=
+cor(pollen)
+@ 
+
+while the correlation matrix for the multinomial corresponding
+to~$\hat{p}$ is actually
+ 
+<<corr_multinomial>>=
+jj <- -outer(p.hat,p.hat)/sqrt(outer(p.hat,1-p.hat)*outer(1-p.hat,p.hat))
+diag(jj) <- 1
+jj
+@ 
+
+(We have corrected what seems to be a small typo in the 4th column of
+this matrix in \citeauthor{mosimann1962}'s Table 2).  It is
+particularly striking that the data show \emph{positive} correlations
+for~3 entries.  Such positive correlations could never arise from the
+Dirichlet-multinomial distribution, but they will be exactly matched
+by our new multiplicative multinomial model.  The full sample
+covariance matrix for the dataset is
+
+<<fullvariance,echo=TRUE>>=
+var(pollen)
+@ 
+
+which is precisely the covariance of the multiplicative multinomial
+distribution at the maximum likelihood (ML) parameters.
+
+<<calculate_gunter,echo=FALSE,print=false,cache=TRUE>>=
+jj <- gunter(pollen)
+n <- jj$d
+y <- jj$tbl
+nm <- colnames(pollen)
+lind_poll <- Lindsey(pollen, give_fit=TRUE)
+fvm <-  lind_poll$fit$fitted.values/nrow(pollen)
+@ 
+
+
+\begin{figure}[htbp]
+  \begin{center}
+<<plotter,fig=TRUE>>= 
+par(mfrow=c(2,2))
+par(mai=c(0.2,0.2,0.2,0.2)*2)
+f <- function(yin,xlimits,ylimits,pine){
+  mfm <- tapply(fvm,yin,sum)
+  p1 <- sum(n*yin)/sum(100*n)
+  i <- 0:100
+  fvb <- dbinom(i, 100,p1)
+  matplot(i, cbind(fvb, mfm),
+          xlab="",ylab="probability",
+          main=pine,
+          type="b", pch=16, xlim=xlimits, ylim=ylimits)
+}
+
+f(y[,1],c(70,100),c(0,0.12),nm[1])
+f(y[,2],c( 0, 10),c(0,0.35),nm[2])
+legend("topright",lty=1:2,pch=16,col=1:2,legend=c('multinomial','MM'))
+f(y[,3],c( 0, 20),c(0,0.14),nm[3])
+f(y[,4],c( 0, 10),c(0,0.25),nm[4])
+@
+\caption{Marginal frequency distributions for numbers of each of four
+  pollen \label{fittedprobs} types based on the multinomial
+  distribution (black) and the multiplicative multinomial (red).}
+\end{center}
+\end{figure}
+ 
+Calculating the Normalizing constant for the MM distribution is
+computationally expensive; \code{NormC()} takes over~60 seconds to
+execute on a~$2.66\,\mathrm{GHz}$ Intel PC running linux.  For direct
+maximization of the log-likelihood function, for example by \pkg{MM}
+function \code{optimizer()}, one would have to call \code{NormC()}
+many times.  Thus function \code{Lindsey()} represents, in this case,
+a considerable saving of time in maximizing the log-likelihood (the
+call below took under 15 seconds elapsed time):
+
+\begin{Schunk}
+\begin{Sinput}
+Lindsey(pollen, give_fit=TRUE)
+\end{Sinput}
+\end{Schunk}
+<<print_lindsey_pollen,echo=FALSE,print=TRUE>>=
+lind_poll
+@ 
+
+Thus we arrive at an apparently rather symmetrical set of parameter
+estimates (in the sense of the elements of~$\hat{p}$ being close to
+one another, and the elements of~$\hat{\theta}$ being close to unity).
+For this dataset, we observe that the asymptotic distribution of the
+residual deviance, $\chi^2_{176841}$, is not a good approximation for
+its actual distribution.  This is because the frequency data is
+overwhelmingly comprised of zeros, with only~66 nonzero frequencies
+amongst the~176851 compositions.  Function \code{glm()} tenders a
+warning to this effect.
+
+\subsection{Marketing science: An example of the  multivariate multiplicative binomial}
+
+We now illustrate the multivariate multiplicative binomial with an
+example drawn from the field of economics.  \cite{danaher2005}
+considered a dataset obtained from a sample of~$N=548$ households over
+four consecutive store trips.  For each household, they counted the
+total number of egg purchases in their four eligible shopping trips,
+and the total number of bacon purchases for the same trips; the
+hypothesis was that egg consumption was correlated with bacon
+consumption.
+
+The dataset is provided with the \pkg{MM} package:
+
+<<datadan,echo=TRUE>>=
+data("danaher")
+danaher
+@ 
+
+<<fishertest,echo=FALSE,print=FALSE,cache=TRUE>>=
+set.seed(1)
+jjfish <- fisher.test(as.array(danaher), sim=TRUE,B=1e6)
+jjv <- round(jjfish$p.value*1e6,3)
+@
+
+
+Thus~16 households purchased eggs twice and bacon once (this
+is~\citeauthor{danaher2005}'s Table~1).  The purchases of eggs and
+bacon are not independent\footnote{Fisher's exact test gives a
+  $p$~value of~$\Sexpr{jjv}\times 10^{-6}$ with~$10^6$ replicates.}
+and we suggest fitting this data to the distribution given in
+Equation~\ref{fishpat}; here~$m_1=m_2=4$.  The Poisson device of
+\citeauthor{lindsey1992} is again applicable:
+
+<<danaher.bacon.eggs,echo=TRUE>>=
+fit <- Lindsey_MB(danaher)
+summary(fit)
+@ 
+and \code{glm()} gives a good fit in the sense that the residual
+deviance
+of~\Sexpr{round(fit$deviance,3)}%$..................................
+\ is compatible with its asymptotic null
+distribution~$\chi^2_{\Sexpr{fit$df.residual}}$.%$...................
+
+<<asdf,echo=F,print=F>>=
+jj <- coefficients(fit)[6]
+@ 
+
+The \code{bacon:eggs} coefficient (ie~$\log\hat{\phi} =
+\Sexpr{round(jj,4)}$)
+gives~$\hat{\phi}=e^{\Sexpr{round(jj,4)}}=\Sexpr{round(exp(jj),4)}$,
+showing strong positive association.
+
+<<remove_n>>=
+rm(n)
+@ 
+
+<<define_N>>=
+N <- sum(danaher)
+@ 
+
+
+We can now verify that the expected (marginal) number of egg purchases
+and bacon purchases under the ML distribution match the observed.  The
+first step is to create \code{M}, the expected contingency matrix:
+
+<<test2,echo=TRUE,print=FALSE>>=
+M <- danaher
+M[] <- fitted.values(fit)
+M
+@ 
+
+Then we may verify, for example, that the fitted sum of bacon purchases
+matches its observed value:
+
+<<echo=TRUE,print=FALSE, keep.source=TRUE>>=
+bacon <- slice.index(danaher,1)
+eggs  <- slice.index(danaher,2)
+<<echo=TRUE,print=TRUE>>=
+sum(bacon*danaher)         # Observed number of bacon purchases
+sum(bacon*M)               # Expectation;  matches
+@ 
+
+
+As a final check, we can verify that the sample covariance matches the
+distribution's covariance at the MLE:
+<<correlation,echo=TRUE,print.source=TRUE>>=
+sum(bacon*eggs*danaher)/N - sum(bacon*danaher)*sum(eggs*danaher)/N^2
+sum(bacon*eggs*M)      /N - sum(bacon*M      )*sum(eggs*M      )/N^2
+@ 
+
+again showing agreement to within numerical precision.
+
+\section{Suggestions for further work}
+
+The multiplicative multinomial is readily generalized to a
+distribution with~$2^k-1$ parameters:
+
+\begin{equation}\label{mm_gen}
+  \Prob\left(y_1,\ldots,y_k\right)=
+  {y\choose y_1\ldots y_k}
+  \prod_{\mathcal{S}\subseteq\left[k\right]}
+  \left(\Theta_\mathcal{S}\right)^{\prod_{i\in\mathcal S}y_i}
+\end{equation}
+where~$[k]=\left\{1,2,\ldots,k\right\}$ is the set of all strictly
+positive integers not exceeding~$k$.  Here, the parameters are indexed
+by a subset of~$[k]$; it is interesting to note
+that~$\Theta_\varnothing$ formally represents the normalization
+constant~$C$.  In this notation, Equation~\ref{mult_mult} becomes
+
+\begin{equation}\label{mm_gen2}
+  \prod_{\mathcal{S}\subseteq\left[k\right]\atop
+    \left|\mathcal{S}\right|\leqslant 2}
+    {y\choose y_1\ldots y_k}
+  \left(\Theta_\mathcal{S}\right)^{\prod_{i\in\mathcal S}y_i}.
+\end{equation}
+
+Equation~\ref{mm_gen} leads to a distribution of the exponential
+family type; but interpretation of the parameters is difficult, and
+further work would be needed to establish the usefulness of this
+extension.
+
+Further, Equation~\ref{fishpat} generalizes to
+\begin{equation}\label{bingen}
+  \prod_{i=1}^t
+    {m_i\choose x_i\, z_i}p_i^{x_i}q_i^{z_i}\theta_i^{x_iz_i}
+    \prod_{i<j}\phi_{ij}^{x_ix_j}.
+\end{equation}
+
+
+It is possible to generalize the equations in a slightly different
+way.  Consider an~$r\times c$ matrix~$\bn$ with entries~$n_{ij}$ and
+fixed marginal totals.  Now suppose that each row of~$\bn$ comprises
+independent observations from a multinomial distribution with
+probabilities~$p_1,\ldots,p_r$, and likewise the columns are
+multinomial~$q_1,\ldots,q_c$: This is the null of Fisher's exact test.
+Then one natural probability measure would be
+
+\begin{equation}\label{fishergeneralized}
+\Prob(\bn)=\frac{1}{C}\cdot
+  \frac{
+%    \prod_{i=1}^rp_i^{\sum_{j=1}^s n_{ij}}
+%    \prod_{j=1}^cq_j^{\sum_{i=1}^r n_{ij}}
+    {\displaystyle\prod_{1\leqslant i_1<i_2\leqslant r}\theta_{i_1i_2}^{\sum_{j=1}^cn_{i_1j}n_{i_2j}}}
+    {\displaystyle\prod_{1\leqslant j_1<j_2\leqslant c}  \phi_{j_1j_2}^{\sum_{1=1}^rn_{ij_1}n_{ij_2}}}
+  }{
+    \prod_{i=1}^r
+    \prod_{j=1}^s
+    n_{ij}!
+  }
+\end{equation}
+(the fixed known row- and column- sums mean that~$p_i$ and~$q_j$, and
+the marginal multinomial terms, are absorbed into the normalizing
+constant~$C$).  With a slight abuse of notation this can be written
+\begin{equation}\label{fishergenmat}
+  \Prob(\bn)=
+  \frac{1}{C}\cdot
+  \frac{
+%    \prod\mathbf{p}^{\bn\mathbf{1}}
+%    \prod\mathbf{q}^{\mathbf{1}^T\bn}
+    \prod \Theta^{\bn\bn^\top}
+    \prod \Phi^{\bn^\top\bn}
+  }{
+    \prod\bn!
+  }
+\end{equation}
+where~$\Theta$ governs row-wise departures from multinomial and~$\Phi$
+governs column-wise departures; there are a total
+of~$r(r-1)/2+c(c-1)/2$ free parameters.
+
+The Poisson device of~\citeauthor{lindsey1992} is again applicable,
+with the difference that the enumeration carried out by
+\code{compositions()} is replaced by enumeration of contingency tables
+with the correct marginal totals: Function~\code{allboards()} of the
+\pkg{aylmer} package~\citep{west2008}.  A simple example is given
+under \code{help(sweets)}.
+
+As pointed out by an anonymous referee, it might be possible to extend
+either or both of the new distributions to the context of regression on
+covariates.
+
+\section{Conclusions}
+
+In this paper, we considered natural generalizations of the
+multiplicative binomial distribution to the multivariate case.  The
+resulting distributions have a number of desirable features, including
+a more precise control over the variance than the multinomial, and a
+straightforward interpretation in terms of contingency tables.
+
+The distributions belong to the exponential family; this makes fast
+calculation of maximum likelihood estimates possible using generalized
+linear model techniques; in \proglang{R} idiom, the \code{glm()}
+function is used.
+
+Novel analyses are presented on data drawn from the fields of social
+science and palaeoclimatology.
+
+\subsection*{Acknowledgements}
+We thank Professor Gianfranco Lovison for helpful discussions; the AE
+and referees of the JSS review process provided constructive suggestions
+which improved the quality of the manuscript and associated software.
+
+\bibliography{MM}
+\end{document}
+
