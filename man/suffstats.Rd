@@ -7,7 +7,7 @@
 \title{
 Sufficient statistics for the multiplicative multinomial
 }
-\description{
+\description{\loadmathjax
   Calculate, manipulate, and display sufficient statistics of the
   multiplicative multinomial.  Functionality for analysing datasets, and
   distributions specified by their parameters is given; summary and
@@ -59,7 +59,7 @@ Function \code{summary.suffstats()} provides a summary of a
 \code{row_sums} and \code{cross_prods}, normalized with \code{nobs} and
 \code{Y} so that the values are comparable with that returned by
 \code{expected_suffstats()}.  In particular, the sum of \code{row_sums}
-is the known sum \eqn{y}.
+is the known sum \mjseqn{y}.
 
 }
 \author{
