@@ -7,7 +7,7 @@
 \alias{MM_single}
 \alias{MM_support}
 \title{Various multiplicative multinomial probability utilities}
-\description{
+\description{\loadmathjax
 Various multiplicative multinomial probability utilities for different
 types of observation
 }
@@ -35,28 +35,27 @@ MM_support(paras, ss)
 }
 \details{
 
-  Consider non-negative integers \eqn{y_1,\ldots,y_k}{y_1,...,y_k} with
-  \eqn{\sum y_i=y}{y_1+...+y_k=y}.  Then suppose the frequency function
-  of the distribution \eqn{Y_1,\ldots,Y_k}{Y_1,...,Y_k} is
+  Consider non-negative integers \mjeqn{y_1,\ldots,y_k}{y_1,...,y_k} with
+  \mjeqn{\sum y_i=y}{y_1+...+y_k=y}.  Then suppose the frequency function
+  of the distribution \mjeqn{Y_1,\ldots,Y_k}{Y_1,...,Y_k} is
   
-  \deqn{
-    C\cdot{y\choose y_1,\ldots,y_k}
+  \mjdeqn{C\cdot{y\choose y_1,\ldots,y_k}
     \prod_{i=1}^k p_i^{y_i}
-    \prod_{1\leq i<j\leq k}{\theta_{ij}}^{y_iy_j}
-    }
+    \prod_{1\leq i < j\leq k}{\theta_{ij}}^{y_iy_j}
+    }{omitted; see PDF}
 
-    where \eqn{p_i,\ldots,p_k\geq 0}{p_i,...,p_k >= 0}, \eqn{\sum
+    where \mjeqn{p_i,\ldots,p_k\geq 0}{p_i,...,p_k >= 0}, \mjeqn{\sum
       p_i=1}{p_1+...+p+k=1} correspond to probabilities; and
-    \eqn{\theta_{ij}>0}{theta_{ij}>0} for \eqn{1\leq i< j\leq k}{1 <= i
+    \mjeqn{\theta_{ij} > 0}{theta_{ij}>0} for \mjeqn{1\leq i < j\leq k}{1 <= i
       < j <= k} are additional parameters.
 
-    Here \eqn{C} stands for a normalization constant:
+    Here \mjseqn{C} stands for a normalization constant:
 
-    \deqn{C=C(p,\theta,Y)=
+    \mjdeqn{C=C(p,\theta,Y)=
       \sum_{y_1 + \cdots + y_k=y}
     \prod_{i=1}^k p_i^{y_i}
-    \prod_{1\leq i<j\leq k}{\theta_{ij}}^{y_iy_j}
-    }
+    \prod_{1\leq i < j\leq k}{\theta_{ij}}^{y_iy_j}
+    }{omitted; see PDF}
       
     which is evaluated numerically.  This is expensive.
     
@@ -65,7 +64,7 @@ MM_support(paras, ss)
     \item Function \code{MM()} returns the log of the probability of a
     matrix of rows of independent multinomial observations.  It is a
     wrapper for \code{MM_allsamesum()} and
-    \code{MM_differsums()}.   Recall that optional argument \code{n}
+    \code{MM_differsums()}.  Recall that optional argument \code{n}
     specifies the number of times that each row is observed.  Calls
     \code{NormC()}. 
     \item Function \code{MM_allsamesum()} gives the log of the
@@ -93,9 +92,7 @@ MM_support(paras, ss)
   }
 }
 
-\author{
-  Robin K. S. Hankin
-}
+\author{Robin K. S. Hankin}
 \examples{
 data(voting)
 

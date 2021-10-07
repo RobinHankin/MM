@@ -4,7 +4,7 @@
 \title{
 Multinomial function
 }
-\description{
+\description{\loadmathjax
 The multinomial function and its logarithm
 }
 \usage{
@@ -16,13 +16,14 @@ lmultinomial(x)
 }
 \details{
 Function \code{multinomial()} returns
-  \deqn{{n\choose n_1,n_2,\ldots,n_k} = \frac{n!}{n_1!n_2!\cdots n_k!}}
-  where \eqn{\sum_i n_i=n}{n_1+...+n_k=n}, and function
+
+\mjdeqn{{n\choose n_1,n_2,\ldots,n_k} = \frac{n!}{n_1!n_2!\cdots
+    n_k!}}{omitted; see PDF}
+
+where \mjeqn{\sum_i n_i=n}{n_1+...+n_k=n}, and function
   \code{lmultinomial()} returns the natural logarithm of this.
 }
-\author{
-Robin K. S. Hankin
-}
+\author{Robin K. S. Hankin}
 \note{
 Uses logarithmic functions to avoid overflow.
 }

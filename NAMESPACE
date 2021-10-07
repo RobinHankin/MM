@@ -18,4 +18,4 @@ import(abind)
 import(Oarray)
 import(partitions)
 import(methods)
-
+import("mathjaxr")

@@ -7,14 +7,14 @@
 \title{
 Synthetic dataset due to Hankin
 }
-\description{
+\description{\loadmathjax
   Four objects:
   \itemize{
-    \item\code{sweets} is a \eqn{2\times 3\times 21}{2x3x21} array
+    \item\code{sweets} is a \mjeqn{2\times 3\times 21}{2x3x21} array
     \item\code{sweets_tally} is a length 37 vector
-    \item\code{sweets_array} is a \eqn{2\times 3\times 37}{2x3x37}
+    \item\code{sweets_array} is a \mjeqn{2\times 3\times 37}{2x3x37}
     vector
-    \item\code{sweets_table} is a \eqn{37\times 6}{37x6} matrix
+    \item\code{sweets_table} is a \mjeqn{37\times 6}{37x6} matrix
     }
 }
 \usage{data(sweets)}

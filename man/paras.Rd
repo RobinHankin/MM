@@ -19,7 +19,7 @@
 \alias{getVals,paras-method}
 \alias{length,paras-method}
 \title{Manipulate a paras object}
-\description{
+\description{\loadmathjax
 Various utilities to manipulate \code{paras} objects.  Functions
 \code{pnames()} and \code{pnames<-()} operate on \code{MB} objects as
 expected.
@@ -40,11 +40,11 @@ getVals(x)
     Object of class \code{paras}
   }
   \item{p}{
-    In function \code{paras()}, a vector of the first \eqn{k-1}
+    In function \code{paras()}, a vector of the first \mjseqn{k-1}
     elements of the probabilities
   }
   \item{theta}{
-    In function \code{paras()}, a \eqn{k} by \eqn{k} matrix with
+    In function \code{paras()}, a \mjseqn{k} by \mjseqn{k} matrix with
     diagonal composed of ones
   }
   \item{pnames}{In function \code{paras()}, a character vector of

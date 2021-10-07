@@ -5,7 +5,7 @@
 \title{
 Pollen data from Mosimann 1962
 }
-\description{
+\description{\loadmathjax
 Data from Mosimann 1962 detailing forest pollen counts 
 }
 \usage{data(pollen)}
@@ -20,7 +20,7 @@ A matrix with four columns and 76 rows.
 }
 \references{
 J. E. Mosimann 1962.  \dQuote{On the compound multinomial distribution,
-  the multivariate \eqn{\beta}{beta}-distribution, and correlations
+  the multivariate \mjeqn{\beta}{beta}-distribution, and correlations
   among proportions}.  \emph{Biometrika}, volume 49, numbers 1 and 2,
 pp65-82.
 }

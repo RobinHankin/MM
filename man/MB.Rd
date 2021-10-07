@@ -9,7 +9,7 @@
 \alias{getM,MB-method}
 \alias{getM}
 \title{Multivariate multiplicative binomial distribution}
-\description{
+\description{\loadmathjax
 Various utilities to coerce and manipulate \code{MB} objects
 }
 \usage{
@@ -48,17 +48,17 @@ MB(dep, m, pnames=character(0))
   analyzable by \code{Lindsey()}.
   
   The multivariate multiplicative binomial distribution is defined by
-  \deqn{
+  \mjdeqn{
     \prod_{i=1}^t
     {m_i\choose x_i\, z_i}p_i^{x_i}q_i^{z_i}\theta_i^{x_iz_i}
-    \prod_{i<j}\phi_{ij}^{x_ix_j}
+    \prod_{i < j}\phi_{ij}^{x_ix_j}
   }{
    Equation 20 of the vignette
   }
 
- Thus if \eqn{\theta=\phi=1} the system reduces to a product of
- independent binomial distributions with probability \eqn{p_i} and size
- \eqn{m_i} for \eqn{i=1,\ldots,t}{1,...,t}.
+ Thus if \mjeqn{\theta=\phi=1}{theta=phi=1} the system reduces to a product of
+ independent binomial distributions with probability \mjseqn{p_i} and size
+ \mjseqn{m_i} for \mjeqn{i=1,\ldots,t}{1,...,t}.
 
  There follows a short \R transcript showing the \code{MB} class in use,
  with annotation.
@@ -68,12 +68,12 @@ MB(dep, m, pnames=character(0))
 R> m <- c(2,3,1)
  }
 
- This means that \eqn{m_1=2,m_2=3,m_3=1}{m1=2,m2=3,m3=1}.  So
- \eqn{m_1=2}{m1=2} means that \eqn{i=1} corresponds to a binomial
+ This means that \mjeqn{m_1=2,m_2=3,m_3=1}{m1=2,m2=3,m3=1}.  So
+ \mjeqn{m_1=2}{m1=2} means that \mjseqn{i=1} corresponds to a binomial
  distribution with size 2 [that is, the observation is in the set
- \eqn{\{0,1,2\}}{{0,1,2}}]; and \eqn{m_2=3}{m2=3} means that \eqn{i=2}
+ \mjeqn{\{0,1,2\}}{{0,1,2}}]; and \mjeqn{m_2=3}{m2=3} means that \mjseqn{i=2}
  corresponds to a binomial with size 3 [ie the set
- \eqn{\{0,1,2,3\}}{{0,1,2,3}}].
+ \mjeqn{\{0,1,2,3\}}{{0,1,2,3}}].
 
  Now we need some observations:
 
@@ -89,8 +89,8 @@ R> a
 }
 
 In matrix \code{a}, the first observation, viz \code{c(1,0,0)} is
-interpreted as \eqn{x_1=1,x_2=0,x_3=0}{x1=1,x2=0,x3=0}.  Thus, because
-\eqn{x_i+z_i=m_i}, we have \eqn{z_1=1,z_2=3,z_3=1}{z1=1,z2=3,z3=1}.  Now
+interpreted as \mjeqn{x_1=1,x_2=0,x_3=0}{x1=1,x2=0,x3=0}.  Thus, because
+\mjeqn{x_i+z_i=m_i}{xi+zi=mi}, we have \mjeqn{z_1=1,z_2=3,z_3=1}{z1=1,z2=3,z3=1}.  Now
 we can create an object of class \code{MB}, using function \code{MB()}:
 
 \preformatted{
@@ -98,7 +98,7 @@ R>  mx <- MB(a, m, letters[1:3])
 }
 
 The third argument gives names to the observations corresponding to the
-columns of \code{a}.   The values of \eqn{m_1, m_2, m_3}{m1,m2,m3} may
+columns of \code{a}.   The values of \mjeqn{m_1, m_2, m_3}{m1,m2,m3} may
 be extracted using \code{getM()}:
 
 \preformatted{
@@ -124,9 +124,9 @@ R>
 }
 
 See how the columns are in pairs: the first pair total 2 (because
-\eqn{m_1=2}{m1=2}), the second pair total 3 (because \eqn{m_2=3}{m2=3}),
-and the third pair total 1 (because \eqn{m_3=1}{m3=1}).  Each pair of
-columns has only a single degree of freedom, because \eqn{m_i} is known.
+\mjeqn{m_1=2}{m1=2}), the second pair total 3 (because \mjeqn{m_2=3}{m2=3}),
+and the third pair total 1 (because \mjeqn{m_3=1}{m3=1}).  Each pair of
+columns has only a single degree of freedom, because \mjeqn{m_i}{mi} is known.
 
 Also observe how the column names are in pairs.  The print method puts
 these in place.  Take the first two columns.  These are named
