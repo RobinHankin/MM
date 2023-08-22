@@ -1,9 +1,9 @@
-citHeader("To cite MM in publications use:")
+citHeader("To cite the MM package in publications use:")
 
-citEntry(entry = "Article",
-  title        = "Multivariate Generalizations of the Multiplicative Binomial Distribution: Introducing the {MM} Package",
-  author       = personList(as.person("Pat M. E. Altham"),
-                   as.person("Robin K. S. Hankin")),
+bibentry(bibtype = "Article",
+  title          = "Multivariate Generalizations of the Multiplicative Binomial Distribution: Introducing the {MM} Package",
+  author       = c(person("Pat M. E. Altham"),
+                   person("Robin K. S. Hankin")),
   journal      = "Journal of Statistical Software",
   year         = "2012",
   volume       = "46",
