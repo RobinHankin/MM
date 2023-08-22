@@ -57,7 +57,7 @@ MM_support(paras, ss)
     \prod_{1\leq i < j\leq k}{\theta_{ij}}^{y_iy_j}
     }{omitted; see PDF}
       
-    which is evaluated numerically.  This is expensive.
+    which is evaluated numerically.  This is computationally expensive.
     
   The usual case is to use function \code{MM()}.
   \itemize{
