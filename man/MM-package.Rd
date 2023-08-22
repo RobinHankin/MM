@@ -10,20 +10,17 @@ Two generalizations of the Multiplicative Binomial distribution of
 Altham (1978).
 }
 \details{
-\tabular{ll}{
-Package: \tab MM\cr
-Type: \tab Package\cr
-Version: \tab 1.0\cr
-Date: \tab 2012-02-29\cr
-License: \tab GPL\cr
-LazyLoad: \tab yes\cr
-}
+
+The DESCRIPTION file:
+\packageDESCRIPTION{MM}
+\packageIndices{MM}
 
 }
 \author{
 Robin K. S. Hankin and P. M. E. Altham
 
-Maintainer:  \email{hankin.robin@gmail.com}
+Maintainer: \packageMaintainer{MM}
+
 }
 \references{
 P. M. E. Altham 1978.  \dQuote{Two Generalizations of the Binomial
