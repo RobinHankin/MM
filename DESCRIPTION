@@ -4,7 +4,7 @@ Title: The Multiplicative Multinomial Distribution
 Description: Various utilities for the Multiplicative Multinomial distribution.
 Version: 1.6-7
 Depends: R (>= 2.10.0), Oarray (>= 1.4-6), partitions (>= 1.9-14)
-Imports: magic (>= 1.5-6), abind, emulator (>= 1.2-13), methods, mathjaxr
+Imports: magic (>= 1.5-6), abind, quadform (>= 0.0-2), methods, mathjaxr
 Author: Robin K. S. Hankin and P. M. E. Altham
 Maintainer: Robin K. S. Hankin <hankin.robin@gmail.com>
 License: GPL-2

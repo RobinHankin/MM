@@ -291,7 +291,7 @@ setMethod("show","MB",
            +lfactorial(Y)                *   sum(n) 
            -sum(apply(y,1,f)                   * n)
            +sum(rowSums(sweep(y,2,log(p),"*")) * n) 
-           +sum(diag(quad.tform(log(theta),y)) * n)
+           +quad.ttrace((log(theta),y)         * n)
            )
 } 
 
@@ -307,7 +307,7 @@ setMethod("show","MB",
          +N*lfactorial(Y) 
          -sum(lfactorial(y)) 
          +sum(sweep(y,2,log(p),"*")) 
-         +tr(quad.tform(log(theta),y)) 
+         +quad.ttrace(log(theta),y) 
          )
 } 
  
@@ -332,7 +332,7 @@ setMethod("show","MB",
                 -sapply(rowSums(y),NormC,paras,log=TRUE)
                 +apply(y,1,lmultinomial)         
                 +rowSums(sweep(y,2,log(p),"*"))   
-                +diag(quad.tform(log(theta),y)) 
+                +quad.tdiag(log(theta),y) 
                 ))
          )
 } 
