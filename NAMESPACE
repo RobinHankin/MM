@@ -11,7 +11,7 @@ S3method(as.array, gunter_MB)
 S3method(summary, suffstats)
 
 importFrom("magic", "minmax")
-importFrom("quadform", "quad.form","quad.tform","quad.ttrace")
+importFrom("quadform", "quad.form","quad.tform","quad.ttrace","quad.tdiag")
 importFrom("stats", "glm", "nlm", "optim", "poisson", "runif")
 
 import(abind)
