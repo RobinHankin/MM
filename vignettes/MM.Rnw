@@ -808,6 +808,7 @@ package~\citep{hankin2006} uses generating functions to determine that
 there are exactly
 
 <<usepartitions,echo=TRUE,print=TRUE>>=
+library("partitions")
 S(rep(100,4),100)
 @ 
 
