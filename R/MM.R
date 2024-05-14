@@ -291,7 +291,7 @@ setMethod("show","MB",
            +lfactorial(Y)                *   sum(n) 
            -sum(apply(y,1,f)                   * n)
            +sum(rowSums(sweep(y,2,log(p),"*")) * n) 
-           +quad.ttrace(log(theta),y)          * n
+           +sum(quad.tdiag(log(theta),y)       * n)
            )
 } 
 
