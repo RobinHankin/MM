@@ -13,7 +13,7 @@
 
 %% just as usual
 \author{P. M. E. Altham\\University of Cambridge\And
-	   Robin K. S. Hankin\\Auckland University of Technology}
+	   Robin K. S. Hankin\\The University of Stirling}
 \title{Multivariate Generalizations of the Multiplicative Binomial
   Distribution: Introducing the \pkg{MM} Package}
 %\VignetteIndexEntry{The Multiplicative Multinomial distribution}
@@ -67,10 +67,8 @@ This vignette is based on~\cite{altham2012}.
   E-mail: \email{P.M.E.Altham@statslab.cam.ac.uk}
 
   Robin K. S. Hankin\\
-  Auckland University of Technology\\
-  14 Wakefield Street\\
-  Auckland 1010\\
-  New Zealand\\
+  The University of Stirling\\
+  Scotland\\
   E-mail: \email{hankin.robin@gmail.com}
 }
 %% It is also possible to add a telephone and fax number
