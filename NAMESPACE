@@ -18,4 +18,3 @@ importFrom("Oarray","is.Oarray","as.Oarray","Oarray")
 
 import(abind)
 import(methods)
-import("mathjaxr")
