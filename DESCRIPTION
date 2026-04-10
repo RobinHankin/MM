@@ -2,7 +2,7 @@ Package: MM
 Type: Package
 Title: The Multiplicative Multinomial Distribution
 Description: Various utilities for the Multiplicative Multinomial distribution.
-Version: 1.6-8
+Version: 1.7-0
 Depends: R (>= 2.10.0)
 Imports: magic (>= 1.5-6), abind, quadform (>= 0.0-2), methods, partitions (>= 1.9-14), Oarray
 Authors@R: c(person(given = c("Robin", "K.", "S."),
