@@ -5,7 +5,13 @@ Description: Various utilities for the Multiplicative Multinomial distribution.
 Version: 1.6-8
 Depends: R (>= 2.10.0)
 Imports: magic (>= 1.5-6), abind, quadform (>= 0.0-2), methods, mathjaxr, partitions (>= 1.9-14), Oarray
-Author: Robin K. S. Hankin and P. M. E. Altham
+Authors@R: c(person(given = c("Robin", "K.", "S."),
+                      family = "Hankin",
+                      role = c("aut", "cre"),
+                      email = "hankin.robin@gmail.com"),
+               person(given = c("P.", "M.", "E."),
+                      family = "Altham",
+                      role = "aut"))
 Maintainer: Robin K. S. Hankin <hankin.robin@gmail.com>
 License: GPL-2
 LazyLoad: yes
